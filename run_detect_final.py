@@ -1,17 +1,24 @@
 import subprocess
 import cv2
 from pathlib import Path
+import shutil
 
 # -----------------------------
 # Settings
 # -----------------------------
 YOLO_DETECT = "yolov5/detect.py"
 WEIGHTS = "yolov5/runs/train/exp11/weights/best.pt"
-SOURCE = "a.jpg"
-SAVE_DIR = "runs/detect/exp4"  # same as training exp
+SOURCE = "image.png"
+SAVE_DIR = "runs/detect/exp4"  
 IMG_SIZE = "640"
 CONF = "0.25"
 # -----------------------------
+
+# Clear output folder if it exists
+save_path = Path(SAVE_DIR)
+if save_path.exists() and save_path.is_dir():
+    shutil.rmtree(save_path)
+    print(f"Cleared previous outputs in {SAVE_DIR}")
 
 # Run YOLOv5 detection in the same experiment folder
 command = [
@@ -29,11 +36,7 @@ command = [
 
 subprocess.run(command, check=True)
 
-# Display results
-for img_path in Path(SAVE_DIR).glob("*.jpg"):
-    img = cv2.imread(str(img_path))
-    cv2.imshow("YOLO Detection", img)
-    cv2.waitKey(0)
 
+cv2.imshow("abc",cv2.imread(f"{SAVE_DIR}/{SOURCE}"))
+cv2.waitKey(0)
 cv2.destroyAllWindows()
-print(f"Detection complete! Results saved in {SAVE_DIR}")
