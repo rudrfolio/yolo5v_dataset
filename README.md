@@ -1,12 +1,110 @@
-1.use resizefinal.py and mention the dataset path(in SOURCE_DIR variable) and mention the desired size in mb (in TARGET_SIZE_MB variable),it will create a new folder "dataset_limited" and return the new resized dataset
-2.now use autolabelfinal.py and give dataset_limited directory in (DATASET_DIR variable), now u will get dataset_final correctly labled and structured in yolov5 format and train/test split
-3.now it can be used to train our yolov5 model
-  steps to train yolo5v model:
-  1.clone the yolov5 repository from github
-  2.paste our dataset_final in same folder
-  3.make a customD.yaml file in format of (coco128.yaml (default of yolov5))
-  (a customD.yaml file is being uploaded in repository for reference)
-  now paste it in yolo5v/data "here" 
-  4.use the given train.py to train the model(note: give the path of yaml file correctly in it) adjust the epochs according to your choice.
-  5.the trained model and all result will be saved in yolo5v/runs/train/exp...(specify latest exp no.here )
-  6.now use detect.py give the source path of the new image on which u want to test correctly, u will get result here yolo5v/runs/detect/exp....(latest exp no.here )
+# YOLOv5 Pest Detection – Complete Training & Inference Guide
+
+This repository provides a complete pipeline to prepare, label, train, and test a YOLOv5 model on a custom pest dataset.
+
+---
+
+## 📌 Steps to Prepare and Train
+
+### 1. Resize Dataset
+
+Use `resizefinal.py` to resize your dataset.
+
+* Set `SOURCE_DIR` = path to your dataset
+* Set `TARGET_SIZE_MB` = desired dataset size (in MB)
+
+```bash
+python resizefinal.py
+```
+
+✅ Output: A new folder `dataset_limited`
+
+### 2. Auto-Label Dataset
+
+Use `autolabelfinal.py` to structure your dataset in YOLOv5 format.
+
+* Set `DATASET_DIR = "dataset_limited"`
+
+```bash
+python autolabelfinal.py
+```
+
+✅ Output: A new folder `dataset_final` (YOLOv5 format + train/val split)
+
+### 3. Clone YOLOv5 Repository
+
+```bash
+git clone https://github.com/ultralytics/yolov5.git
+cd yolov5
+```
+
+### 4. Place Dataset
+
+Move `dataset_final` inside the YOLOv5 root folder:
+
+```
+yolov5/
+ ├── dataset_final/
+ ├── data/
+ ├── models/
+ ├── train.py
+ ├── detect.py
+```
+
+### 5. Create Custom YAML
+
+Create a file `customD.yaml` (similar to `coco128.yaml`) and configure:
+
+```yaml
+train: ./dataset_final/images/train
+val: ./dataset_final/images/val
+
+nc: <num_classes>
+names: [ 'class1', 'class2', ... ]
+```
+
+Save it inside `yolov5/data/customD.yaml`.
+
+### 6. Train Model
+
+Run training with your dataset:
+
+```bash
+python train.py --img 640 --batch 16 --epochs 50 --data data/customD.yaml --weights yolov5s.pt --cache
+```
+
+✅ Output: Training results + weights saved in `yolov5/runs/train/expX/`
+
+### 7. Run Inference
+
+Run detection on new images:
+
+```bash
+python detect.py --weights runs/train/expX/weights/best.pt --img 640 --conf 0.25 --source path/to/image_or_folder
+```
+
+✅ Output: Results saved in `yolov5/runs/detect/expY/`
+
+---
+
+## 📊 Workflow Diagram (Mermaid)
+
+```mermaid
+flowchart TD
+    A[Raw Dataset] -->|Step 1: resizefinal.py| B[dataset_limited]
+    B -->|Step 2: autolabelfinal.py| C[dataset_final in YOLOv5 format]
+    C -->|Step 3: Clone Repo| D[YOLOv5 Repo]
+    D -->|Step 4: Place dataset_final| E[YOLOv5 Folder]
+    E -->|Step 5: Create YAML| F[customD.yaml in data/]
+    F -->|Step 6: Train| G[Trained Weights in runs/train/expX]
+    G -->|Step 7: Detect| H[Results in runs/detect/expY]
+```
+
+---
+
+## ✅ Notes
+
+* Adjust `--epochs` in training as per your dataset size.
+* Ensure `customD.yaml` paths match your folder structure.
+* Use the latest trained `expX` folder for detection.
+* Confidence threshold in `detect.py` can be adjusted with `--conf`.
